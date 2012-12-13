@@ -58,5 +58,33 @@ class Wb
   def follow_follower
   end
 
+  # 获得发布的消息的状态,如客户端 消息id 其他人态度等
+  # TODO
+  def tweet_info
+    tweet_list = @doc.css('div.c')
+    tweet_list.each do |div|
+      if div['id'] != nil
+        #@,label, attitude, retweet, comment, favorite, client
+        links = div.css('a').length
+
+        #tweet id
+        tid = div['id'].sub('M_', '')
+
+        #tweet time and client
+        tc = div.css('span.ct')[0].content
+      end
+    end
+  end
+
+  # 获得排行榜中的列表
+  def top_user_list
+    top_list = @doc.css('a.nk')
+    @top = Hash.new
+    top_list.each do |u|
+      @top[u.content] = u['href']
+    end
+    return @top
+  end
+
 end
 
