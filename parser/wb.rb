@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'nokogiri'
 require 'hpricot'
 
@@ -59,19 +60,42 @@ class Wb
   end
 
   # 获得发布的消息的状态,如客户端 消息id 其他人态度等
-  # TODO
+  # TODO: 获取转发/评论的链接,是否能够抓取
   def tweet_info
     tweet_list = @doc.css('div.c')
     tweet_list.each do |div|
       if div['id'] != nil
-        #@,label, attitude, retweet, comment, favorite, client
-        links = div.css('a').length
-
-        #tweet id
+        # tweet id
         tid = div['id'].sub('M_', '')
+        @info[:tid] = tid
 
-        #tweet time and client
+        #@,label, attitude, retweet, comment, favorite, client
+        attitude = ''
+        links = div.css('a')
+        links.each do |a|
+          if a['href'].match(tid)
+            attitude += a.content
+          end
+        end
+        @info[:good], @info[:retweet_num], @info[:comment_num] = attitude.scan(/\d+/)
+
+        # tweet time
         tc = div.css('span.ct')[0].content
+        tweet_at = tc[0..tc.index("来自")-2]
+        #   tweet time is not so long 
+        tweet_time = tweet_at.scan(/\d/).join
+        case tweet_time.length
+        when 1..2
+          @info[:tweet_at] = (Time.now-tweet_time.to_i*60).strftime("%Y%m%d%H%M")
+        when 4
+          @info[:tweet_at] = Time.now.strftime("%Y%m%d") +tweet_time
+        when 8
+          @info[:tweet_at] = Time.now.year + tweet_time
+        end
+
+        # tweet client
+        @info[:tweet_by] = tc[tc.index("来自")+2..tc.length]
+        return @info
       end
     end
   end

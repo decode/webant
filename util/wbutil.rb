@@ -124,7 +124,7 @@ class WbUtil
   end
 
   def get_tweet_list
-    file = File.new("search.html", "r")
+    file = File.new("user.html", "r")
     body = file.read
     wb = Wb.new(body)
     wb.tweet_info
