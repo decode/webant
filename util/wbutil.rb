@@ -66,11 +66,26 @@ class WbUtil
 
   # 指定获取用户的消息类型集合
   # TODO 如何获取用户uid
-  def special_tweet_page
+  # params:
+  #   uid - 用户平台ID
+  #   special_type - 'nopic'原创无图片, 'haspic'原创有图片, 'retweet_nopic'转发无图, 'retweet_haspic'转发有图
+  # return:
+  #   page_count
+  def special_tweet_page(uid, special_type)
     uid = '1266321801'
-    page = search(uid, :isOrigin=>true, :isPic=>false)
+    case special_type
+    when 'nopic'
+      options = {:isOrigin=>true, :isPic=>false}
+    when 'haspic'
+      options = {:isOrigin=>true, :isPic=>true}
+    when 'retweet_nopic'
+      options = {:isOrigin=>false, :isPic=>false}
+    when 'retweet_haspic'
+      options = {:isOrigin=>false, :isPic=>true}
+    end
+    page = search(uid, options)
     wb = Wb.new(page.body)
-    p wb.count_tweet_page(:search_page)
+    p wb.tweet_page_count
   end
 
   # 搜索功能,通过网站的'筛选'实现
@@ -128,6 +143,7 @@ class WbUtil
     body = file.read
     wb = Wb.new(body)
     wb.tweet_info
+    wb.user_info
   end
 
 end

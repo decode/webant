@@ -17,6 +17,10 @@ class Wb
   end
 
   def user_info
+    # 用户UID
+    link = @doc.css('div.ut > a').last
+    @info[:uid] = link['href'].match(/\d+/).to_s
+
     # 用户名一栏 ------------------------------ 
     content = @doc.css('div.ut > span.ctt')[0].content
     info = content.split(/[[:blank:]]/)
@@ -41,17 +45,17 @@ class Wb
 
     # 信息类别 ------------------------------ 
     # all tweet page number
-    count_tweet_page(:all_page)
+    @info[:all_page] = tweet_page_count
 
     return @info
   end
 
   # 获取不同分类页数
-  def count_tweet_page(page_type)
+  def tweet_page_count
     if @doc.css('div#pagelist > form > div > input').length == 0
-      @info[page_type] = 1.to_s
+      return 1.to_s
     else
-      @info[page_type] = @doc.css('div#pagelist > form > div > input')[0]['value']
+      return @doc.css('div#pagelist > form > div > input')[0]['value']
     end
   end
 
@@ -60,24 +64,50 @@ class Wb
   end
 
   # 获得发布的消息的状态,如客户端 消息id 其他人态度等
-  # TODO: 获取转发/评论的链接,是否能够抓取
+  # return:
+  #   tid - tweet id
+  #   isRetweet - this tweet is retweet others tweet
+  #   tweet - tweet content
+  #   support - the number of other support
+  #   retweet_num - the retweet number
+  #   retweet_url - the page url of retweet
+  #   comment_num - the comments number
+  #   comment_url - the page url of people who comment
+  #   tweet_at - the post time of a tweet
+  #   tweet_by - people using client to tweet
   def tweet_info
+    tweets = Array.new
     tweet_list = @doc.css('div.c')
     tweet_list.each do |div|
+      info = Hash.new
       if div['id'] != nil
         # tweet id
         tid = div['id'].sub('M_', '')
-        @info[:tid] = tid
+        info[:tid] = tid
 
-        #@,label, attitude, retweet, comment, favorite, client
+        # retweet
+        retweet = div.css('span.cmt')
+        if retweet
+          info[:isRetweet] = true
+        end
+
+        # content
+        tweet_content = div.css('span.ctt').first
+        info[:tweet] = tweet_content.content
+
+        # @,label, attitude, retweet, comment, favorite
         attitude = ''
         links = div.css('a')
+        act_link = Array.new
         links.each do |a|
           if a['href'].match(tid)
+            act_link.push(a)
             attitude += a.content
           end
         end
-        @info[:good], @info[:retweet_num], @info[:comment_num] = attitude.scan(/\d+/)
+        info[:support], info[:retweet_num], info[:comment_num] = attitude.scan(/\d+/)
+        # 同时获取转发、评论的链接
+        info[:retweet_url], info[:comment_url] = act_link[1]['href'], act_link[2]['href']
 
         # tweet time
         tc = div.css('span.ct')[0].content
@@ -86,18 +116,19 @@ class Wb
         tweet_time = tweet_at.scan(/\d/).join
         case tweet_time.length
         when 1..2
-          @info[:tweet_at] = (Time.now-tweet_time.to_i*60).strftime("%Y%m%d%H%M")
+          info[:tweet_at] = (Time.now-tweet_time.to_i*60).strftime("%Y%m%d%H%M")
         when 4
-          @info[:tweet_at] = Time.now.strftime("%Y%m%d") +tweet_time
+          info[:tweet_at] = Time.now.strftime("%Y%m%d") +tweet_time
         when 8
-          @info[:tweet_at] = Time.now.year + tweet_time
+          info[:tweet_at] = Time.now.year + tweet_time
         end
 
         # tweet client
-        @info[:tweet_by] = tc[tc.index("来自")+2..tc.length]
-        return @info
+        info[:tweet_by] = tc[tc.index("来自")+2..tc.length]
+        tweets.push(info)
       end
     end
+    return tweets
   end
 
   # 获得排行榜中的列表
@@ -111,4 +142,3 @@ class Wb
   end
 
 end
-
