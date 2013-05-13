@@ -152,4 +152,3 @@ u = WbUtil.new
 u.load_cookie
 #p u.get_top_list('grass')
 u.get_tweet_list
-
