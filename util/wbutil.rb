@@ -124,9 +124,9 @@ class WbUtil
     #body = file.read
     url = "http://weibo.cn/pub/top?cat=#{top_type}&rl=0"
     page = @web.get(url)
-    file = File.new("top.html", "w")
-    file << page.body
-    wb = Wb.new(body)
+    #file = File.new("top.html", "w")
+    #file << page.body
+    wb = Wb.new(page.body)
     top_list = wb.top_user_list
     # the next page
     limit = limit>10 ? 10:limit
@@ -150,6 +150,6 @@ end
 
 u = WbUtil.new
 u.load_cookie
-#p u.get_top_list('grass')
-u.get_tweet_list
+p u.get_top_list('grass')
+#u.get_tweet_list
 
