@@ -151,6 +151,12 @@ class WbUtil
     wb.user_info
   end
 
+  # 存储任务到任务数据库
+  # 通常使用 get_top_list 获取用户名和网址
+  def save_task(user_list)
+    
+  end
+
 end
 
 u = WbUtil.new
