@@ -2,6 +2,7 @@
 require 'nokogiri'
 require 'hpricot'
 
+# 页面解析
 class Wb
 
   def initialize(body, encoding=nil)
@@ -46,7 +47,6 @@ class Wb
     # 信息类别 ------------------------------ 
     # all tweet page number
     @info[:all_page] = tweet_page_count
-
     return @info
   end
 
@@ -61,6 +61,7 @@ class Wb
 
   # 获得用户所关注的人被别人关注的数量
   def follow_follower
+    # TODO
   end
 
   # 获得发布的消息的状态,如客户端 消息id 其他人态度等
@@ -120,7 +121,7 @@ class Wb
         when 4
           info[:tweet_at] = Time.now.strftime("%Y%m%d") +tweet_time
         when 8
-          info[:tweet_at] = Time.now.year + tweet_time
+          info[:tweet_at] = Time.now.year.to_s + tweet_time
         end
 
         # tweet client

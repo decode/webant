@@ -18,8 +18,8 @@ class WbUtil
 
   def login
     page = @web.get('http://login.weibo.cn/login/?ns=1&revalid=2&backURL=http%3A%2F%2Fweibo.cn%2F&backTitle=%D0%C2%C0%CB%CE%A2%B2%A9&vt=')
-    file = File.new("login.html", "w")
-    file << page.body
+    #file = File.new("login.html", "w")
+    #file << page.body
     
     doc = Nokogiri::HTML::parse(page.body)
     vk = doc.css('input')[-2]['value']
@@ -65,14 +65,12 @@ class WbUtil
   end
 
   # 指定获取用户的消息类型集合
-  # TODO 如何获取用户uid
   # params:
-  #   uid - 用户平台ID
+  #   uid - 用户平台ID, uid可通过parser/Wb.user_info函数获得
   #   special_type - 'nopic'原创无图片, 'haspic'原创有图片, 'retweet_nopic'转发无图, 'retweet_haspic'转发有图
   # return:
   #   page_count
   def special_tweet_page(uid, special_type)
-    uid = '1266321801'
     case special_type
     when 'nopic'
       options = {:isOrigin=>true, :isPic=>false}
@@ -118,30 +116,37 @@ class WbUtil
   #   四种排行榜类型: star, grass, content, media
   #   页面限制: 2 to 10 pages
   # return:
-  #   Hash
+  #   Hash: 
+  #     key: 用户名
+  #     value: 网址,网址中可能包含uid也可能是用户名,需要判断
   def get_top_list(top_type, limit=10)
-    #file = File.new("top.html", "r")
-    #body = file.read
-    url = "http://weibo.cn/pub/top?cat=#{top_type}&rl=0"
-    page = @web.get(url)
+    file = File.new("top.html", "r")
+    body = file.read
+    wb = Wb.new(body)
+    
+    #url = "http://weibo.cn/pub/top?cat=#{top_type}&rl=0"
+    #page = @web.get(url)
     #file = File.new("top.html", "w")
     #file << page.body
-    wb = Wb.new(page.body)
+    #wb = Wb.new(page.body)
+
     top_list = wb.top_user_list
     # the next page
     limit = limit>10 ? 10:limit
     (2..limit).each do |page_num|
       url = "http://weibo.cn/pub/top?cat=#{top_type}&page=#{page_num}"
       page = @web.get(url)
-      top_list += Wb.new(page.body).top_user_list
+      top_list.merge Wb.new(page.body).top_user_list
     end
     return top_list
   end
 
-  def get_tweet_list
-    file = File.new("user.html", "r")
-    body = file.read
-    wb = Wb.new(body)
+  # 获得用户个人信息和消息列表
+  def get_tweet_list(url)
+    page = @web.get(url)
+    file = File.new("user.html", "w")
+    file << page.body
+    wb = Wb.new(page.body)
     wb.tweet_info
     wb.user_info
   end
@@ -150,5 +155,8 @@ end
 
 u = WbUtil.new
 u.load_cookie
+a = u.get_top_list('star').to_a
+p a[1][1]
+u.get_tweet_list(a[1][1])
 #p u.get_top_list('grass')
-u.get_tweet_list
+#u.get_tweet_list
