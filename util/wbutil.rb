@@ -6,11 +6,14 @@ Dir[File.dirname(__FILE__) + '/../parser/*.rb'].each do |file|
   require "#{file}"
 end
 
+Dir[File.dirname(__FILE__) + '/../models/*.rb'].each do |file|
+  require "#{file}"
+end
+
 class WbUtil
   attr_accessor :web
 
   def initialize
-    @url = 'http://weibo.cn/pub/top?cat=grass&rl=0'
     @web = Mechanize.new do |agent|
       agent.user_agent_alias = 'Mac Safari' 
     end
@@ -138,6 +141,10 @@ class WbUtil
       page = @web.get(url)
       top_list.merge Wb.new(page.body).top_user_list
     end
+    top_list.each do |k, v|
+      puts k
+      Task.add_task(v)
+    end
     return top_list
   end
 
@@ -161,8 +168,8 @@ end
 
 u = WbUtil.new
 u.load_cookie
-a = u.get_top_list('star').to_a
-p a[1][1]
-u.get_tweet_list(a[1][1])
+u.get_top_list('star')
 #p u.get_top_list('grass')
+
+# TODO 根据数据库tasks 表中的网址,使用get_tweet_list获取用户信息
 #u.get_tweet_list
