@@ -18,12 +18,23 @@ class Wb
   end
 
   def user_info
+    history = Hash.new
+
     # 用户UID
     link = @doc.css('div.ut > a').last
     @info[:uid] = link['href'].match(/\d+/).to_s
+    # 获取用户uid(optional)
+    #content = @doc.css('div.ut > span.ctt > a')
+    #content.each do |c|
+      #if c['href'].include? 'urank'
+        #@info[:uid] = c['href'].match(/\d+/).to_s
+        #print @info[:uid]
+      #end
+    #end
 
     # 用户名一栏 ------------------------------ 
-    content = @doc.css('div.ut > span.ctt')[0].content
+    head = @doc.css('div.ut > span.ctt')
+    content = head[0].content
     info = content.split(/[[:blank:]]/)
     name = info[0]
     # if user online
@@ -31,23 +42,61 @@ class Wb
       name = name[0..name.index('[')-1]
     end
     @info[:name] = name
+    history[:level] = info[1].match(/\d+/).to_s unless info[1].nil?
     if info.length == 3
-      @info[:sex], @info[:from] = info[2].split(/\//)
+      @info[:gender], @info[:from] = info[2].split(/\//)
+    end
+
+    # 认证 和 简介 -------------------------------
+    if head.length > 1
+      head[1..-1].each do |h|
+        if h.content.include?("认证")
+          @info[:identification] = h.content[3..-1]
+        else
+          @info[:bio] = h.content
+        end
+      end
     end
 
     # 用户状态一栏 ------------------------------ 
     content = @doc.css('div.tip2')
     c = content[0].content
     d = c.scan(/\d+/)
-    @info[:tweet], @info[:follow], @info[:follower], @info[:group] = d
+    history[:tweet_num], history[:follow_num], history[:follower_num], history[:group_num] = d
     # 相关关注
     if content.length > 1
     end
 
     # 信息类别 ------------------------------ 
     # all tweet page number
-    @info[:all_page] = tweet_page_count
-    return @info
+    history[:page_num] = tweet_page_count
+    return @info, history
+  end
+
+  def user_birthday
+    content = @doc.css('div.c')
+    result = Hash.new
+    birthday = ''
+    content.each do |c|
+      birthday = c.content.match(/\d+-\d+-\d+/).to_s if c.content.include? '生日'
+    end
+    result[:birthday] = birthday if birthday
+    puts result
+    return result
+  end
+
+  # 通过用户资料链接获取用户标签信息
+  def user_detail
+    tag = Array.new
+    content = @doc.css('div.c > a')
+    content.each do |c|
+      if c['href'].include? 'keyword'
+        tag.push c.content
+      end
+    end
+    result = Hash.new
+    result[:tag] = tag.join(" ") if tag.length < 0
+    return result
   end
 
   # 获取不同分类页数

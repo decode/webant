@@ -19,7 +19,7 @@ Sequel.migration do
       foreign_key :user_id, :users
       #String :name 暂不记录名字的修改
       String :level #级别
-      Integer :tweets_num
+      Integer :tweet_num
       Integer :follow_num
       Integer :follower_num
       Integer :group_num

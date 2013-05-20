@@ -11,10 +11,21 @@ class User < Sequel::Model
     end
   end
 
-  def self.create(info)
+  def self.create_from_userpage(info, history)
     DB.transaction do
-      user = find_or_create(info[:uid])
+      users = User.filter(:uid => info[:uid])
+      if users.count == 0
+        #user = User.create(:uid=>info[:uid], :name=>info[:name], :gender=>info[:gender], :form=>info[:from], :level=>info[:level])
+        user = User.create(info)
+        #history = History.create(:tweet_num=>info[:tweet_num], :follow_num=>info[:follow_num], :follower_num=>info[:follower_num], :group_num=>info[:group_num], :created_at=>Time.now)
+        h = History.create(history)
+        h.user = user
+      else
+        user = users.first
+        user.update(info)
+      end
     end
   end
+
   
 end

@@ -7,45 +7,45 @@ Dir[File.dirname(__FILE__) + '/parser/*.rb'].each do |file|
   require "#{file}"
 end
 
-#Dir[File.dirname(__FILE__) + '/models/*.rb'].each do |file|
-  #require "#{file}"
-#end
+Dir[File.dirname(__FILE__) + '/models/*.rb'].each do |file|
+  require "#{file}"
+end
+
+Dir[File.dirname(__FILE__) + '/util/*.rb'].each do |file|
+  require "#{file}"
+end
 
 class Crawler
-  #@url = 'http://weibo.cn/yaochen'
-  #@url = 'http://weibo.cn/kaifulee'
-  #@url = 'http://weibo.cn/u/3020788201'
-  @web = nil
   def initialize
-    @url = 'http://weibo.cn/n/崔向红'
-    @web = Mechanize.new do |agent|
-      agent.user_agent_alias = 'Mac Safari' 
-    end
   end
 
   def run
-    page = @web.get(@url)
-    puts page
-
-    file = File.new("test.html", "w")
-    file << page.body
   end
   
-  def read
-    file = File.new("test.html", "r")
-    body = file.read
-    wb = Wb.new(body)
-    p wb.user_info
+  def prepare_tasks
+    u = WbUtil.new
+    u.load_cookie
+    u.get_top_list('star', 10)
+    u.get_top_list('grass', 10)
   end
 
-  def index_page
-    page = @web.get('http://weibo.cn')
-    file = File.new("index.html", "w")
-    file << page.body
+  def fetch
   end
 
 end
 
-c = Crawler.new
-c.load_cookie
-c.get_tweet_page(2)
+#c = Crawler.new
+#c.load_cookie
+#c.get_tweet_page(2)
+
+# TODO 根据数据库tasks 表中的网址,使用get_tweet_list获取用户信息
+#u.get_tweet_list
+
+tasks = Task.first(10)
+puts tasks[0].url
+u = WbUtil.new
+#u.login
+u.load_cookie
+info, tweets = u.fetch_user_page(tasks[0].url)
+
+#user = User.create_from_userpage(info)

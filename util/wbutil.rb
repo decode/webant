@@ -123,23 +123,24 @@ class WbUtil
   #     key: 用户名
   #     value: 网址,网址中可能包含uid也可能是用户名,需要判断
   def get_top_list(top_type, limit=10)
-    file = File.new("top.html", "r")
-    body = file.read
-    wb = Wb.new(body)
+    #file = File.new("top.html", "r")
+    #body = file.read
+    #wb = Wb.new(body)
     
-    #url = "http://weibo.cn/pub/top?cat=#{top_type}&rl=0"
-    #page = @web.get(url)
-    #file = File.new("top.html", "w")
-    #file << page.body
-    #wb = Wb.new(page.body)
+    url = "http://weibo.cn/pub/top?cat=#{top_type}" #&rl=0"
+    page = @web.get(url)
+    file = File.new("top.html", "w")
+    file << page.body
+    wb = Wb.new(page.body)
 
     top_list = wb.top_user_list
     # the next page
     limit = limit>10 ? 10:limit
     (2..limit).each do |page_num|
-      url = "http://weibo.cn/pub/top?cat=#{top_type}&page=#{page_num}"
-      page = @web.get(url)
-      top_list.merge Wb.new(page.body).top_user_list
+      page_url = url + "&page=#{page_num}"
+      page = @web.get(page_url)
+      top_list.merge! Wb.new(page.body).top_user_list
+      sleep rand(5)
     end
     top_list.each do |k, v|
       puts k
@@ -149,27 +150,35 @@ class WbUtil
   end
 
   # 获得用户个人信息和消息列表
-  def get_tweet_list(url)
+  def fetch_user_page(url)
     page = @web.get(url)
     file = File.new("user.html", "w")
     file << page.body
     wb = Wb.new(page.body)
-    wb.tweet_info
-    wb.user_info
+    info, history = wb.user_info
+    sleep rand(5)
+
+    # 获取用户生日
+    info_url = "http://weibo.cn/" + info[:uid] + "/info"
+    page = @web.get(info_url)
+    wb = Wb.new(page.body)
+    info[:birthday] = wb.user_birthday
+    sleep rand(5)
+
+    # 获取用户的标签
+    info_url = "http://weibo.cn/account/privacy/tags/?uid=" + info[:uid]
+    page = @web.get(info_url)
+    wb = Wb.new(page.body)
+    wb.user_detail
+    info.merge! wb.user_detail
+
+    return info, history, wb.tweet_info
   end
 
   # 存储任务到任务数据库
   # 通常使用 get_top_list 获取用户名和网址
-  def save_task(user_list)
+  def save_task(user_list, type)
     
   end
 
 end
-
-u = WbUtil.new
-u.load_cookie
-u.get_top_list('star')
-#p u.get_top_list('grass')
-
-# TODO 根据数据库tasks 表中的网址,使用get_tweet_list获取用户信息
-#u.get_tweet_list
