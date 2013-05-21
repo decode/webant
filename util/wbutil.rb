@@ -169,8 +169,7 @@ class WbUtil
     info_url = "http://weibo.cn/account/privacy/tags/?uid=" + info[:uid]
     page = @web.get(info_url)
     wb = Wb.new(page.body)
-    wb.user_detail
-    info.merge! wb.user_detail
+    info[:tag] = wb.user_tag
 
     return info, history, wb.tweet_info
   end

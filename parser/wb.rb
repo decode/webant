@@ -65,6 +65,7 @@ class Wb
     history[:tweet_num], history[:follow_num], history[:follower_num], history[:group_num] = d
     # 相关关注
     if content.length > 1
+      # TODO
     end
 
     # 信息类别 ------------------------------ 
@@ -73,6 +74,7 @@ class Wb
     return @info, history
   end
 
+  # 获取用户生日
   def user_birthday
     content = @doc.css('div.c')
     result = Hash.new
@@ -81,12 +83,11 @@ class Wb
       birthday = c.content.match(/\d+-\d+-\d+/).to_s if c.content.include? '生日'
     end
     result[:birthday] = birthday if birthday
-    puts result
     return result
   end
 
   # 通过用户资料链接获取用户标签信息
-  def user_detail
+  def user_tag
     tag = Array.new
     content = @doc.css('div.c > a')
     content.each do |c|
@@ -94,8 +95,7 @@ class Wb
         tag.push c.content
       end
     end
-    result = Hash.new
-    result[:tag] = tag.join(" ") if tag.length < 0
+    result = tag.join(" ") if tag.length < 0
     return result
   end
 
@@ -130,6 +130,7 @@ class Wb
     tweet_list = @doc.css('div.c')
     tweet_list.each do |div|
       info = Hash.new
+      history = Hash.new
       if div['id'] != nil
         # tweet id
         tid = div['id'].sub('M_', '')
@@ -143,7 +144,7 @@ class Wb
 
         # content
         tweet_content = div.css('span.ctt').first
-        info[:tweet] = tweet_content.content
+        info[:content] = tweet_content.content
 
         # @,label, attitude, retweet, comment, favorite
         attitude = ''
@@ -155,7 +156,7 @@ class Wb
             attitude += a.content
           end
         end
-        info[:support], info[:retweet_num], info[:comment_num] = attitude.scan(/\d+/)
+        history[:support_num], history[:retweet_num], history[:comment_num] = attitude.scan(/\d+/)
         # 同时获取转发、评论的链接
         info[:retweet_url], info[:comment_url] = act_link[1]['href'], act_link[2]['href']
 

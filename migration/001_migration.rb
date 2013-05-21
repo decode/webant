@@ -36,6 +36,7 @@ Sequel.migration do
       Boolean :isRetweet #是否为转发
       Boolean :hasPic #是否含图片
       String :tweet_url #当前地址
+      String :retweet_url #转发地址
       String :comment_url #评论地址
       String :picture_url #图片地址
       String :tweet_by #客户端
