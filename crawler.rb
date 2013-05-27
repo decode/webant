@@ -34,13 +34,7 @@ class Crawler
 
 end
 
-#c = Crawler.new
-#c.load_cookie
-#c.get_tweet_page(2)
-
 # TODO 根据数据库tasks 表中的网址,使用get_tweet_list获取用户信息
-#u.get_tweet_list
-
 tasks = Task.first(10)
 puts tasks[0].url
 u = WbUtil.new

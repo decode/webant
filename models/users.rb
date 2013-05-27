@@ -1,13 +1,24 @@
 require File.dirname(__FILE__) + '/../db_connection.rb'
 
+Dir[File.dirname(__FILE__) + '/*.rb'].each do |file|
+  require "#{file}"
+end
+
 class User < Sequel::Model
   one_to_many :tweets
-  one_to_many :history, :class=>:user_history
+  one_to_many :histories, :class=>"UserHistory"
 
   def self.find_or_create(uid)
     DB.transaction do
       users = User.filter(:uid => uid)
       users.count > 0 ? users.first : User.create(:uid => uid, :created_at => Time.now)
+    end
+  end
+
+  def self.find_or_create_by_name(name)
+    DB.transaction do
+      users = User.filter(:name => name)
+      users.count > 0 ? users.first : User.create(:name => name, :created_at => Time.now)
     end
   end
 

@@ -43,7 +43,7 @@ class Wb
     end
     @info[:name] = name
     history[:level] = info[1].match(/\d+/).to_s unless info[1].nil?
-    if info.length == 3
+    if info.length > 2
       @info[:gender], @info[:from] = info[2].split(/\//)
     end
 
@@ -77,13 +77,11 @@ class Wb
   # 获取用户生日
   def user_birthday
     content = @doc.css('div.c')
-    result = Hash.new
     birthday = ''
     content.each do |c|
       birthday = c.content.match(/\d+-\d+-\d+/).to_s if c.content.include? '生日'
     end
-    result[:birthday] = birthday if birthday
-    return result
+    return birthday
   end
 
   # 通过用户资料链接获取用户标签信息
@@ -95,7 +93,7 @@ class Wb
         tag.push c.content
       end
     end
-    result = tag.join(" ") if tag.length < 0
+    result = tag.join(" ") if tag.length > 0
     return result
   end
 
@@ -127,10 +125,15 @@ class Wb
   #   tweet_by - people using client to tweet
   def tweet_info
     tweets = Array.new
+    tweet = Hash.new
+
     tweet_list = @doc.css('div.c')
     tweet_list.each do |div|
       info = Hash.new
       history = Hash.new
+      retweet_user = Hash.new
+      retweet_info = Hash.new
+      retweet_history = Hash.new
       if div['id'] != nil
         # tweet id
         tid = div['id'].sub('M_', '')
@@ -138,8 +141,44 @@ class Wb
 
         # retweet
         retweet = div.css('span.cmt')
-        if retweet
+        vip = div.css('span.kt')
+        if retweet.length > 0 and vip.length == 0
           info[:isRetweet] = true
+
+          # 获取原转发的数据
+          d = div.css('div')
+          sup, rep = nil
+          ret = d[d.length-2].css('span.cmt')
+          if ret.length > 2
+            sup, rep = ret[-2..-1]
+          else
+            sup, rep = ret
+          end
+          pic = d[d.length-2].css('a')
+          pic.each do |p|
+            if p.content.match(/原图/)
+              retweet_info[:hasPic] = true
+              retweet_info[:picture_url] = p['href']
+            end
+          end
+          # 支持数
+          retweet_history[:support_num] = sup.content.match(/\d+/).to_s
+          # 转发数
+          retweet_history[:retweet_num] = rep.content.match(/\d+/).to_s
+          # 评论数
+          cmt = d[d.length-2].css('a.cc')[0]
+          retweet_history[:comment_num] = cmt.content.match(/\d+/).to_s
+          # 从评论数链接中获取转发的tid
+          retweet_info[:tid] = cmt['href'].scan(/comment\/(.*)\?/)[0][0]
+          
+          # 转发内容
+          retc = d[0].css('span.ctt')[0]
+          retweet_info[:content] = retc.content
+
+          # 转发用户
+          retu = d[0].css('span.cmt > a')[0]
+          retweet_user[:name] = retu.content
+          retweet_user[:url] = retu['href']
         end
 
         # content
@@ -155,7 +194,15 @@ class Wb
             act_link.push(a)
             attitude += a.content
           end
+          # 包含原创图片
+          if info[:isRetweet]==false and a.content.match(/原图/)
+            info[:hasPic] = true
+            info[:picture_url] = a['href'] if info[:isRetweet] == false
+          end
         end
+        # 转发中包含图片
+        #info[:hasPic] = true if info[:retweet][:hasPic] == true
+
         history[:support_num], history[:retweet_num], history[:comment_num] = attitude.scan(/\d+/)
         # 同时获取转发、评论的链接
         info[:retweet_url], info[:comment_url] = act_link[1]['href'], act_link[2]['href']
@@ -163,7 +210,7 @@ class Wb
         # tweet time
         tc = div.css('span.ct')[0].content
         tweet_at = tc[0..tc.index("来自")-2]
-        #   tweet time is not so long 
+        # tweet time is not standard
         tweet_time = tweet_at.scan(/\d/).join
         case tweet_time.length
         when 1..2
@@ -176,7 +223,15 @@ class Wb
 
         # tweet client
         info[:tweet_by] = tc[tc.index("来自")+2..tc.length]
-        tweets.push(info)
+
+        # package all information
+        tweet[:tweet] = info
+        tweet[:history] = history
+        tweet[:retweet] = retweet_info
+        tweet[:retweet_user] = retweet_user
+        tweet[:retweet_history] = retweet_history
+
+        tweets.push(tweet)
       end
     end
     return tweets

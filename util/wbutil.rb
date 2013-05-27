@@ -156,6 +156,7 @@ class WbUtil
     file << page.body
     wb = Wb.new(page.body)
     info, history = wb.user_info
+    tweets = wb.tweet_info
     sleep rand(5)
 
     # 获取用户生日
@@ -171,7 +172,40 @@ class WbUtil
     wb = Wb.new(page.body)
     info[:tag] = wb.user_tag
 
-    return info, history, wb.tweet_info
+    user = User.filter(:uid => info[:uid]).first
+    if user.nil?
+      info[:created_at] = Time.now
+      user = User.create(info)
+    else
+      User.update(info)
+    end
+
+    # 添加用户变量数据到数据库
+    DB.transaction do
+      h = UserHistory.create history
+      h.user = user
+      h.created_at = Time.now
+      h.save
+    end
+
+    tweets.each do |t|
+      DB.transaction do
+        tweet = user.add_tweets t[:tweet]
+        tweet.add_histories t[:history]
+
+        retweet_user = User.create t[:retweet_user][:name]
+        ret = retweet_user.add_tweets t[:retweet]
+        ret.add_histories t[:retweet_history]
+        ret.save
+
+        tweet.origin_tweet = ret
+        tweet.save
+
+        Task.create :url=>t[:retweet_user][:url], :created_at => Time.now, :task_type=>'user'
+      end
+    end
+
+    return info, history, tweets
   end
 
   # 存储任务到任务数据库
