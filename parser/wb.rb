@@ -134,6 +134,7 @@ class Wb
       retweet_user = Hash.new
       retweet_info = Hash.new
       retweet_history = Hash.new
+
       if div['id'] != nil
         # tweet id
         tid = div['id'].sub('M_', '')

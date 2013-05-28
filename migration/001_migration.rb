@@ -45,6 +45,8 @@ Sequel.migration do
     end
 
     create_table(:tweet_history) do
+      primary_key :id
+      foreign_key :tweet_id, :tweets
       Boolean :isDeleted, :default=>false #是否被删除
       Integer :support_num
       Integer :retweet_num

@@ -189,19 +189,29 @@ class WbUtil
     end
 
     tweets.each do |t|
+      puts t
+      puts '------------------------------------'
       DB.transaction do
-        tweet = user.add_tweets t[:tweet]
-        tweet.add_histories t[:history]
+        tweet = Tweet.create t[:tweet]
+        history = TweetHistory.create t[:history]
+        history.tweet = tweet
+        history.save
 
-        retweet_user = User.create t[:retweet_user][:name]
-        ret = retweet_user.add_tweets t[:retweet]
-        ret.add_histories t[:retweet_history]
-        ret.save
+        if t[:retweet_user].length > 0
+          retweet_user = User.find_or_create_by_name t[:retweet_user][:name]
+          ret = Tweet.create t[:retweet]
+          ret.user = retweet_user
+          ret.save
+          rhistory = TweetHistory.create t[:retweet_history]
+          rhistory.tweet = ret
+          rhistory.save
+          tweet.origin_tweet = ret
 
-        tweet.origin_tweet = ret
+          Task.create :url=>t[:retweet_user][:url], :created_at => Time.now, :task_type=>'user'
+        end
+
+        tweet.user = user
         tweet.save
-
-        Task.create :url=>t[:retweet_user][:url], :created_at => Time.now, :task_type=>'user'
       end
     end
 
