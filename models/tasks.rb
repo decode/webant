@@ -26,5 +26,16 @@ class Task < Sequel::Model
       puts "[T]:      userid(#{target_id}), url(#{task[:url]})"
     end
   end
+
+  def self.mark_finish(url)
+    tasks = Task.filter :url => url
+    if tasks.count > 0
+      DB.transaction do
+        task = tasks.first
+        task.done = true
+        task.save
+      end
+    end
+  end
   
 end

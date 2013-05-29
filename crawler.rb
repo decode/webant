@@ -35,11 +35,12 @@ class Crawler
 end
 
 # TODO 根据数据库tasks 表中的网址,使用get_tweet_list获取用户信息
-tasks = Task.first(10)
-puts tasks[0].url
-u = WbUtil.new
-#u.login
-u.load_cookie
-info, tweets = u.fetch_user_page(tasks[0].url)
+#tasks = Task.first(10)
+#puts tasks[0].url
+#u = WbUtil.new
+##u.login
+#u.load_cookie
+#info = u.fetch_user_page(tasks[0].url)
+#print info[0][:uid]
 
-#user = User.create_from_userpage(info)
+Crawler.new.prepare_tasks

@@ -125,10 +125,10 @@ class Wb
   #   tweet_by - people using client to tweet
   def tweet_info
     tweets = Array.new
-    tweet = Hash.new
 
     tweet_list = @doc.css('div.c')
     tweet_list.each do |div|
+      tweet = Hash.new
       info = Hash.new
       history = Hash.new
       retweet_user = Hash.new
@@ -178,8 +178,15 @@ class Wb
 
           # 转发用户
           retu = d[0].css('span.cmt > a')[0]
-          retweet_user[:name] = retu.content
-          retweet_user[:url] = retu['href']
+          if retu.nil? #己被删除
+            # 查找原记录
+            # 如果有则标记原记录deleted
+            # 如果没有则标记当前记录为deleted
+            retweet_info[:isDeleted] = true
+          else
+            retweet_user[:name] = retu.content
+            retweet_user[:url] = retu['href']
+          end
         end
 
         # content

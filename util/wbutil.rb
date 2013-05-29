@@ -143,7 +143,8 @@ class WbUtil
       sleep rand(5)
     end
     top_list.each do |k, v|
-      puts k
+      puts v
+      v = v[0...v.index('?')] unless v.index('?').nil?
       Task.add_task(v)
     end
     return top_list
@@ -172,13 +173,7 @@ class WbUtil
     wb = Wb.new(page.body)
     info[:tag] = wb.user_tag
 
-    user = User.filter(:uid => info[:uid]).first
-    if user.nil?
-      info[:created_at] = Time.now
-      user = User.create(info)
-    else
-      User.update(info)
-    end
+    user = User.create_or_update(info)
 
     # 添加用户变量数据到数据库
     DB.transaction do
@@ -189,25 +184,24 @@ class WbUtil
     end
 
     tweets.each do |t|
-      puts t
-      puts '------------------------------------'
       DB.transaction do
-        tweet = Tweet.create t[:tweet]
+        tweet = Tweet.create_or_update t[:tweet]
         history = TweetHistory.create t[:history]
         history.tweet = tweet
         history.save
 
-        if t[:retweet_user].length > 0
-          retweet_user = User.find_or_create_by_name t[:retweet_user][:name]
-          ret = Tweet.create t[:retweet]
-          ret.user = retweet_user
+        if t[:retweet].length > 0
+          ret = Tweet.create_or_update t[:retweet]
+          if t[:retweet_user].length > 0
+            retweet_user = User.find_or_create_by_name t[:retweet_user][:name]
+            ret.user = retweet_user
+            Task.create :url=>t[:retweet_user][:url], :created_at => Time.now, :task_type=>'user'
+          end
           ret.save
           rhistory = TweetHistory.create t[:retweet_history]
           rhistory.tweet = ret
           rhistory.save
           tweet.origin_tweet = ret
-
-          Task.create :url=>t[:retweet_user][:url], :created_at => Time.now, :task_type=>'user'
         end
 
         tweet.user = user
@@ -215,6 +209,8 @@ class WbUtil
       end
     end
 
+    # 标记任务完成
+    Task.mark_finish(url)
     return info, history, tweets
   end
 

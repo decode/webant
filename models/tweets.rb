@@ -12,4 +12,15 @@ class Tweet < Sequel::Model
 
   one_to_many :history, :class=>'TweetHistory'
 
+  def self.create_or_update(tweet)
+    ts = Tweet.filter :tid => tweet[:tid]
+    if ts.count > 0
+      t = ts.first
+      t.update(tweet)
+      return t
+    else
+      return Tweet.create tweet
+    end
+  end
+
 end
