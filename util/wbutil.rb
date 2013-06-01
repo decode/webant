@@ -47,8 +47,17 @@ class WbUtil
     end
   end
 
+  # 检查是否登录, 自动加载cookies
+  def check_login
+    page = @web.get('http://weibo.cn')
+    wb = Wb.new(page.body)
+    login unless wb.login?
+    load_cookie
+  end
+
   # 获得用户的主页链接
   # TODO: url需要获得
+  # Not used
   def get_user_home_page
    page = @web.get(@url)
    return page.uri.to_s
@@ -144,6 +153,7 @@ class WbUtil
     end
     top_list.each do |k, v|
       puts v
+      # 去掉网址?号后的尾巴
       v = v[0...v.index('?')] unless v.index('?').nil?
       Task.add_task(v)
     end
@@ -183,7 +193,17 @@ class WbUtil
       h.save
     end
 
+    save_tweet(user, tweets)
+
+    # 标记任务完成
+    Task.mark_finish(url)
+    return info, history, tweets
+  end
+
+  def save_tweet(user, tweets)
     tweets.each do |t|
+      #puts '---------------------------------------'
+      #puts t[:tweet]
       DB.transaction do
         tweet = Tweet.create_or_update t[:tweet]
         history = TweetHistory.create t[:history]
@@ -208,16 +228,22 @@ class WbUtil
         tweet.save
       end
     end
-
-    # 标记任务完成
-    Task.mark_finish(url)
-    return info, history, tweets
   end
 
-  # 存储任务到任务数据库
-  # 通常使用 get_top_list 获取用户名和网址
-  def save_task(user_list, type)
-    
+  # 获取用户每一页的消息
+  def fetch_tweets(user, page_num=5)
+    return if page_num < 1
+    for i in 1..page_num
+      url = "http://weibo.cn/#{user.uid}?page=#{i}"
+      puts url
+      page = @web.get(url)
+      file = File.new("tweet.html", "w")
+      file << page.body
+      wb = Wb.new(page.body)
+      save_tweet(user, wb.tweet_info)
+
+      sleep(rand(15))
+    end
   end
 
 end

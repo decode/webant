@@ -29,18 +29,29 @@ class Crawler
     u.get_top_list('grass', 10)
   end
 
-  def fetch
+  # 根据数据库tasks表中的网址,使用WbUtil.fetch_user_page获取用户信息
+  def fetch_user_info
+    u = WbUtil.new
+    u.check_login
+    #tasks = Task.filter(:done=>false)
+    tasks = Task.filter(:id=>1..100)
+    tasks.each do |task|
+      puts task.url
+      u.fetch_user_page(task.url)
+      sleep(rand(10))
+    end
+  end
+
+  def fetch_user_tweets
+    u = WbUtil.new
+    u.check_login
+    users = User.first(100)
+    users.each do |user|
+      u.fetch_tweets(user, 3)
+      sleep(rand(10))
+    end
   end
 
 end
 
-# TODO 根据数据库tasks 表中的网址,使用get_tweet_list获取用户信息
-#tasks = Task.first(10)
-#puts tasks[0].url
-#u = WbUtil.new
-##u.login
-#u.load_cookie
-#info = u.fetch_user_page(tasks[0].url)
-#print info[0][:uid]
-
-Crawler.new.prepare_tasks
+Crawler.new.fetch_user_tweets

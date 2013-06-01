@@ -12,6 +12,12 @@ class Wb
     @info = Hash.new
   end
 
+  # 只考虑系统首页的情况
+  def login?
+    login = @doc.css('div.u > div.ut')
+    return false if login.length > 0
+  end
+
   # Mechanize::Page class as param
   def get_uid(page)
     @info[:uid] = page.uri.to_s.match(/\d+/).to_s
@@ -127,6 +133,7 @@ class Wb
     tweets = Array.new
 
     tweet_list = @doc.css('div.c')
+    puts 'Count tweets: ' + tweet_list.length.to_s
     tweet_list.each do |div|
       tweet = Hash.new
       info = Hash.new
@@ -160,6 +167,7 @@ class Wb
             if p.content.match(/原图/)
               retweet_info[:hasPic] = true
               retweet_info[:picture_url] = p['href']
+              info[:hasPic] = true
             end
           end
           # 支持数
@@ -182,7 +190,7 @@ class Wb
             # 查找原记录
             # 如果有则标记原记录deleted
             # 如果没有则标记当前记录为deleted
-            retweet_info[:isDeleted] = true
+            retweet_history[:isDeleted] = true
           else
             retweet_user[:name] = retu.content
             retweet_user[:url] = retu['href']

@@ -3,7 +3,7 @@ Sequel.migration do
     create_table(:users) do
       primary_key :id
       String :name, :null=>false
-      String :uid, :null=>false
+      String :uid
       String :gender
       String :from
       String :member
@@ -14,7 +14,7 @@ Sequel.migration do
       Time :created_at
     end
 
-    create_table(:user_history) do
+    create_table(:user_histories) do
       primary_key :id
       foreign_key :user_id, :users
       #String :name 暂不记录名字的修改
@@ -44,7 +44,7 @@ Sequel.migration do
       Time :tweet_at
     end
 
-    create_table(:tweet_history) do
+    create_table(:tweet_histories) do
       primary_key :id
       foreign_key :tweet_id, :tweets
       Boolean :isDeleted, :default=>false #是否被删除
