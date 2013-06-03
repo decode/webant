@@ -118,8 +118,8 @@ class WbUtil
       f.endtime = options[:end_time].nil? ? Time.now.strftime("%Y%m%d"):options[:end_time]
     end.click_button
 
-    file = File.new("search.html", "w")
-    file << search_page.body
+    #file = File.new("search.html", "w")
+    #file << search_page.body
 
     return search_page
   end
@@ -132,14 +132,10 @@ class WbUtil
   #     key: 用户名
   #     value: 网址,网址中可能包含uid也可能是用户名,需要判断
   def get_top_list(top_type, limit=10)
-    #file = File.new("top.html", "r")
-    #body = file.read
-    #wb = Wb.new(body)
-    
     url = "http://weibo.cn/pub/top?cat=#{top_type}" #&rl=0"
     page = @web.get(url)
-    file = File.new("top.html", "w")
-    file << page.body
+    #file = File.new("top.html", "w")
+    #file << page.body
     wb = Wb.new(page.body)
 
     top_list = wb.top_user_list
@@ -161,8 +157,8 @@ class WbUtil
   # 获得用户个人信息和消息列表
   def fetch_user_page(url)
     page = @web.get(url)
-    file = File.new("user.html", "w")
-    file << page.body
+    #file = File.new("user.html", "w")
+    #file << page.body
     wb = Wb.new(page.body)
     info, history = wb.user_info
     tweets = wb.tweet_info
@@ -235,8 +231,8 @@ class WbUtil
       url = "http://weibo.cn/#{user.uid}?page=#{i}"
       puts url
       page = @web.get(url)
-      file = File.new("tweet.html", "w")
-      file << page.body
+      #file = File.new("tweet.html", "w")
+      #file << page.body
       wb = Wb.new(page.body)
       save_tweet(user, wb.tweet_info)
 
