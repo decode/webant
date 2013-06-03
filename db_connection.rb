@@ -25,7 +25,7 @@ class DBConnection
         new_params = {}
         @params.each {|k,v| new_params[k.to_sym] = v.to_s}
         @db = Sequel.postgres(new_params) if @db.nil?
-        @db.loggers << Logger.new(File.dirname(__FILE__) + "/log/db.log")
+        #@db.loggers << Logger.new(File.dirname(__FILE__) + "/log/db.log")
       else
         puts 'Config file not existed!!!'
       end

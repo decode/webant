@@ -21,7 +21,7 @@ class Crawler
   @logger = nil
 
   def initialize
-    @logger = Logger.new(File.dirname(__FILE__) + '/record.log', 10, 1024000)
+    @logger = Logger.new(File.dirname(__FILE__) + '/log/craw.log', 10, 1024000)
     @logger.info 'Start Crawing ----------'
   end
 
