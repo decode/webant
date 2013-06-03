@@ -1,4 +1,6 @@
+#!/usr/bin/env ruby
 # encoding: utf-8
+
 require 'rubygems'
 require 'mechanize'
 require 'logger'
@@ -16,17 +18,19 @@ Dir[File.dirname(__FILE__) + '/util/*.rb'].each do |file|
 end
 
 class Crawler
+  @logger = nil
+
   def initialize
+    @logger = Logger.new(File.dirname(__FILE__) + '/record.log', 10, 1024000)
+    @logger.info 'Start Crawing ----------'
   end
 
-  def run
-  end
-  
   def prepare_tasks
     u = WbUtil.new
     u.load_cookie
     u.get_top_list('star', 10)
     u.get_top_list('grass', 10)
+    @logger.info('Prepare Fetch URLs')
   end
 
   # 根据数据库tasks表中的网址,使用WbUtil.fetch_user_page获取用户信息
@@ -36,7 +40,7 @@ class Crawler
     #tasks = Task.filter(:done=>false)
     tasks = Task.filter(:id=>1..100)
     tasks.each do |task|
-      puts task.url
+      @logger.info 'Fetching User Info ...' + task.url
       u.fetch_user_page(task.url)
       sleep(rand(10))
     end
@@ -47,6 +51,7 @@ class Crawler
     u.check_login
     users = User.first(100)
     users.each do |user|
+      @logger.info 'Fetching User Tweet ...' + user.uid
       u.fetch_tweets(user, 3)
       sleep(rand(10))
     end
@@ -54,4 +59,14 @@ class Crawler
 
 end
 
-Crawler.new.fetch_user_tweets
+if __FILE__ == $0
+  # Put "main" code here
+  case ARGV[0]
+  when 'user'
+    Crawler.new.fetch_user_info
+  when 'tweet'
+    Crawler.new.fetch_user_tweets
+  when 'task'
+    Crawler.new.prepare_tasks
+  end
+end

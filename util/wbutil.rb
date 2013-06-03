@@ -153,8 +153,6 @@ class WbUtil
     end
     top_list.each do |k, v|
       puts v
-      # 去掉网址?号后的尾巴
-      v = v[0...v.index('?')] unless v.index('?').nil?
       Task.add_task(v)
     end
     return top_list
@@ -215,7 +213,7 @@ class WbUtil
           if t[:retweet_user].length > 0
             retweet_user = User.find_or_create_by_name t[:retweet_user][:name]
             ret.user = retweet_user
-            Task.create :url=>t[:retweet_user][:url], :created_at => Time.now, :task_type=>'user'
+            Task.add_task t[:retweet_user][:url]
           end
           ret.save
           rhistory = TweetHistory.create t[:retweet_history]

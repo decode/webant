@@ -2,6 +2,8 @@ require File.dirname(__FILE__) + '/../db_connection.rb'
 
 class Task < Sequel::Model
   def self.add_task(url, type='user', update=false)
+    # 去掉网址?号后的尾巴
+    url = url[0...url.index('?')] unless url.index('?').nil?
     DB.transaction do
       tasks = Task.filter(:url => url)
       if tasks.count == 0

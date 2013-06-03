@@ -133,7 +133,7 @@ class Wb
     tweets = Array.new
 
     tweet_list = @doc.css('div.c')
-    puts 'Count tweets: ' + tweet_list.length.to_s
+    #puts 'Count tweets: ' + tweet_list.length.to_s
     tweet_list.each do |div|
       tweet = Hash.new
       info = Hash.new
