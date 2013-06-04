@@ -38,9 +38,9 @@ class Crawler
   def fetch_user_info
     u = WbUtil.new
     u.check_login
-    tasks = Task.filter(:id=>1..100)
+    tasks = Task.where :task_type=>['star', 'grass']
     tasks.each do |task|
-      @logger.info 'Fetching User Info ...' + task.url
+      @logger.info "Fetching User[#{task.task_type}] Info: " + task.url
       puts task.url
       u.fetch_user_page(task.url)
       sleep(rand(10))
