@@ -28,9 +28,10 @@ class Crawler
   def prepare_tasks
     u = WbUtil.new
     u.check_login
+    @logger.info('Prepare Fetch URLs')
     u.get_top_list('star', 10)
     u.get_top_list('grass', 10)
-    @logger.info('Prepare Fetch URLs')
+    @logger.info('Prepare Fetch URLs Finished')
   end
 
   # 根据数据库tasks表中的网址,使用WbUtil.fetch_user_page获取用户信息
@@ -44,6 +45,7 @@ class Crawler
       u.fetch_user_page(task.url)
       sleep(rand(10))
     end
+    @logger.info('Fetch User Infomation Finished')
   end
 
   def fetch_user_tweets
@@ -55,6 +57,7 @@ class Crawler
       u.fetch_tweets(user, 3)
       sleep(rand(10))
     end
+    @logger.info('Fetch User Tweets Finished')
   end
 
 end

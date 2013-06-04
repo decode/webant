@@ -51,6 +51,7 @@ class WbUtil
     page = @web.get('http://weibo.cn')
     wb = Wb.new(page.body)
     login unless wb.login?
+    # 如果使用这个函数,mechanize2.7.1会报錯,2.6.0没有这个问题
     #load_cookie
   end
 
