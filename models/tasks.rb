@@ -19,6 +19,7 @@ class Task < Sequel::Model
   end
 
   # If net problem or parse error occur, add to error count
+  # Not used!
   def self.add_error(target_id, type='user')
     DB.transaction do
       tasks = Task.filter(:target_id => target_id)
@@ -29,6 +30,7 @@ class Task < Sequel::Model
     end
   end
 
+  # 标记该任务己完成,目前暂时作为调试观察使用
   def self.mark_finish(url)
     tasks = Task.filter :url => url
     if tasks.count > 0

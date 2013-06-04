@@ -6,8 +6,6 @@ require 'hpricot'
 class Wb
 
   def initialize(body, encoding=nil)
-    #nbsp = Nokogiri::HTML("&nbsp;").text
-    #body.gsub(/#{nbsp}/, ' ')
     @doc = Nokogiri::HTML::parse(body, nil, encoding)   
     @info = Hash.new
   end
