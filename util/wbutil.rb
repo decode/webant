@@ -36,13 +36,13 @@ class WbUtil
     end.click_button
 
     # save cookies
-    @web.cookie_jar.save_as('wb')
+    @web.cookie_jar.save('wb.yml')
   end
 
   # 使用cookie免登录
   def load_cookie
-    if File.exist?('wb') 
-      @web.cookie_jar = Mechanize::CookieJar.new.load('wb')
+    if File.exist?('wb.yml') 
+      @web.cookie_jar = Mechanize::CookieJar.new.load('wb.yml')
     end
   end
 
@@ -51,7 +51,7 @@ class WbUtil
     page = @web.get('http://weibo.cn')
     wb = Wb.new(page.body)
     login unless wb.login?
-    load_cookie
+    #load_cookie
   end
 
   # 获得用户的主页链接

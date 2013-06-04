@@ -27,7 +27,7 @@ class Crawler
 
   def prepare_tasks
     u = WbUtil.new
-    u.load_cookie
+    u.check_login
     u.get_top_list('star', 10)
     u.get_top_list('grass', 10)
     @logger.info('Prepare Fetch URLs')
@@ -37,10 +37,10 @@ class Crawler
   def fetch_user_info
     u = WbUtil.new
     u.check_login
-    #tasks = Task.filter(:done=>false)
     tasks = Task.filter(:id=>1..100)
     tasks.each do |task|
       @logger.info 'Fetching User Info ...' + task.url
+      puts task.url
       u.fetch_user_page(task.url)
       sleep(rand(10))
     end
