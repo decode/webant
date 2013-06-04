@@ -149,7 +149,7 @@ class WbUtil
     end
     top_list.each do |k, v|
       puts v
-      Task.add_task(v)
+      Task.add_task(v, top_type)
     end
     return top_list
   end

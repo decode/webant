@@ -29,8 +29,8 @@ class Crawler
     u = WbUtil.new
     u.check_login
     @logger.info('Prepare Fetch URLs')
-    u.get_top_list('star', 10)
-    u.get_top_list('grass', 10)
+    u.get_top_list('star', 5)
+    u.get_top_list('grass', 5)
     @logger.info('Prepare Fetch URLs Finished')
   end
 
