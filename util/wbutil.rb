@@ -14,9 +14,8 @@ class WbUtil
   attr_accessor :web
 
   def initialize
-    @web = Mechanize.new do |agent|
-      agent.user_agent_alias = 'Mac Safari' 
-    end
+    @web = Mechanize.new
+    @web.user_agent_alias = 'Mac Safari' 
   end
 
   def login
