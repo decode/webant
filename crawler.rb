@@ -47,7 +47,7 @@ class Crawler
         sleep(rand(10))
       rescue
         @logger.error "[#{task.task_type}] Task at: " + task.url
-        u.check_login
+        u.login
         u.fetch_user_page(task.url)
         @logger.info "ReFetching User[#{task.task_type}] Info: " + task.url
       end
