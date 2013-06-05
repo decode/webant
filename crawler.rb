@@ -37,7 +37,7 @@ class Crawler
   # 根据数据库tasks表中的网址,使用WbUtil.fetch_user_page获取用户信息
   def fetch_user_info
     u = WbUtil.new
-    u.check_login
+    #u.check_login
     tasks = Task.where(:task_type=>['star']).all
     @logger.info "Fetching Count: --------------------- " + tasks.count.to_s
     tasks.each do |task|
@@ -47,7 +47,7 @@ class Crawler
         sleep(rand(10))
       rescue
         @logger.error "[#{task.task_type}] Task at: " + task.url
-        u.login
+        #u.login
         u.fetch_user_page(task.url)
         @logger.info "ReFetching User[#{task.task_type}] Info: " + task.url
       end
