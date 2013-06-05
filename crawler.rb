@@ -38,7 +38,7 @@ class Crawler
   def fetch_user_info
     u = WbUtil.new
     u.check_login
-    tasks = Task.where(:task_type=>['star', 'grass']).all
+    tasks = Task.where(:task_type=>['star']).all
     @logger.info "Fetching Count: --------------------- " + tasks.count.to_s
     tasks.each do |task|
       begin
