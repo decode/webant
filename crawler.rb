@@ -41,9 +41,16 @@ class Crawler
     tasks = Task.where(:task_type=>['star', 'grass']).all
     @logger.info "Fetching Count: --------------------- " + tasks.count.to_s
     tasks.each do |task|
-      @logger.info "Fetching User[#{task.task_type}] Info: " + task.url
-      u.fetch_user_page(task.url)
-      sleep(rand(10))
+      begin
+        @logger.info "Fetching User[#{task.task_type}] Info: " + task.url
+        u.fetch_user_page(task.url)
+        sleep(rand(10))
+      rescue
+        @logger.error "[#{task.task_type}] Task at: " + task.url
+        u.check_login
+        u.fetch_user_page(task.url)
+        @logger.info "ReFetching User[#{task.task_type}] Info: " + task.url
+      end
     end
     @logger.info('Fetch User Infomation Finished')
   end
@@ -53,9 +60,16 @@ class Crawler
     u.check_login
     users = User.first(100)
     users.each do |user|
-      @logger.info 'Fetching User Tweet ...' + user.uid
-      u.fetch_tweets(user, 3)
-      sleep(rand(10))
+      begin
+        @logger.info "Fetching User Tweet ..." + user.uid.to_s
+        u.fetch_tweets(user, 3)
+        sleep(rand(10))
+      rescue
+        @logger.error "User at: " + u.uid.to_s
+        u.check_login
+        u.fetch_tweets(user, 3)
+        @logger.info "ReFetching User Tweet Info: " + user.uid
+      end
     end
     @logger.info('Fetch User Tweets Finished')
   end
@@ -71,5 +85,8 @@ if __FILE__ == $0
     Crawler.new.fetch_user_tweets
   when 'task'
     Crawler.new.prepare_tasks
+  when 'test'
+    u = WbUtil.new
+    u.fetch_user_page('http://weibo.cn/yimaobuba')
   end
 end

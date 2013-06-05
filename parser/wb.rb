@@ -32,7 +32,6 @@ class Wb
     #content.each do |c|
       #if c['href'].include? 'urank'
         #@info[:uid] = c['href'].match(/\d+/).to_s
-        #print @info[:uid]
       #end
     #end
 

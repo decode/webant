@@ -156,8 +156,8 @@ class WbUtil
   # 获得用户个人信息和消息列表
   def fetch_user_page(url)
     page = @web.get(url)
-    #file = File.new("user.html", "w")
-    #file << page.body
+    file = File.new("user.html", "w")
+    file << page.body
     wb = Wb.new(page.body)
     info, history = wb.user_info
     tweets = wb.tweet_info
