@@ -14,6 +14,11 @@ class Wb
   def login?
     login = @doc.css('div.u > div.ut')
     return false if login.length > 0
+    login = @doc.css('div.c')
+    login.each do |l|
+      return false if l.content.match(/登录/)
+    end
+    return true
   end
 
   # Mechanize::Page class as param

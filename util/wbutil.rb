@@ -19,9 +19,9 @@ class WbUtil
   end
 
   def login
-    page = @web.get('http://login.weibo.cn/login/?ns=1&revalid=2&backURL=http%3A%2F%2Fweibo.cn%2F&backTitle=%D0%C2%C0%CB%CE%A2%B2%A9&vt=')
-    #file = File.new("login.html", "w")
-    #file << page.body
+    page = @web.get('http://login.weibo.cn/login/')
+    file = File.new("login.html", "w")
+    file << page.body
     
     doc = Nokogiri::HTML::parse(page.body)
     vk = doc.css('input')[-2]['value']
@@ -159,6 +159,7 @@ class WbUtil
     #file = File.new("user.html", "w")
     #file << page.body
     wb = Wb.new(page.body)
+
     info, history = wb.user_info
     tweets = wb.tweet_info
     sleep rand(5)

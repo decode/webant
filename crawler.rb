@@ -87,6 +87,7 @@ if __FILE__ == $0
     Crawler.new.prepare_tasks
   when 'test'
     u = WbUtil.new
+    u.login
     u.fetch_user_page('http://weibo.cn/yimaobuba')
   end
 end
