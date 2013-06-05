@@ -29,7 +29,7 @@ class WbUtil
     action =doc.css('form').first['action']
 
     login_page = page.form_with(:action=>action) do |f|
-      f.mobile = 'aero7@126.com'
+      f.mobile = 'basicme@sina.cn'
       eval("f.password_#{front} = '123654'")
       f.checkbox_with(:name=>'remember').check
       f.vk = vk
