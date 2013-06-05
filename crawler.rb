@@ -39,7 +39,7 @@ class Crawler
     u = WbUtil.new
     u.check_login
     tasks = Task.where(:task_type=>['star', 'grass']).all
-    @logger.info "Fetching Count: --------------------- " + tasks.count
+    @logger.info "Fetching Count: --------------------- " + tasks.count.to_s
     tasks.each do |task|
       @logger.info "Fetching User[#{task.task_type}] Info: " + task.url
       u.fetch_user_page(task.url)
