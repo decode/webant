@@ -148,7 +148,6 @@ class WbUtil
       sleep rand(5)
     end
     top_list.each do |k, v|
-      puts v
       Task.add_task(v, top_type)
     end
     return top_list
@@ -229,7 +228,6 @@ class WbUtil
     return if page_num < 1
     for i in 1..page_num
       url = "http://weibo.cn/#{user.uid}?page=#{i}"
-      puts url
       page = @web.get(url)
       #file = File.new("tweet.html", "w")
       #file << page.body
