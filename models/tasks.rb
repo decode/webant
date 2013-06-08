@@ -10,6 +10,7 @@ class Task < Sequel::Model
         Task.create :task_type => type, :url => url, :created_at => Time.now
       else update
         task = tasks.first
+        task.task_type = type
         task.url = url
         task.run_at = Time.now
         task.update_count += 1

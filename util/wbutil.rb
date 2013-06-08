@@ -29,7 +29,7 @@ class WbUtil
     action =doc.css('form').first['action']
 
     login_page = page.form_with(:action=>action) do |f|
-      f.mobile = 'basicme@sina.cn'
+      f.mobile = 'aero7@126.com'
       eval("f.password_#{front} = '123654'")
       f.checkbox_with(:name=>'remember').check
       f.vk = vk
@@ -132,7 +132,7 @@ class WbUtil
   #     key: 用户名
   #     value: 网址,网址中可能包含uid也可能是用户名,需要判断
   def get_top_list(top_type, limit=10)
-    url = "http://weibo.cn/pub/top?cat=#{top_type}" #&rl=0"
+    url = "http://weibo.cn/pub/top?cat=#{top_type}"
     page = @web.get(url)
     #file = File.new("top.html", "w")
     #file << page.body
