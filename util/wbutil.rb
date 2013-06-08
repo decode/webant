@@ -1,6 +1,7 @@
 # encoding: utf-8
 require 'rubygems'
 require 'mechanize'
+require 'yaml'
 
 Dir[File.dirname(__FILE__) + '/../parser/*.rb'].each do |file|
   require "#{file}"
@@ -26,17 +27,25 @@ class WbUtil
     doc = Nokogiri::HTML::parse(page.body)
     vk = doc.css('input')[-2]['value']
     front = vk.split('_')[0]
-    action =doc.css('form').first['action']
+    action = doc.css('form').first['action']
+    
+    # Load config
+    config_file = File.dirname(__FILE__) + '/../config/settings.yml'
+    if File.exist?(config_file)
+      @params = YAML.load(File.open(config_file))
 
-    login_page = page.form_with(:action=>action) do |f|
-      f.mobile = 'aero7@126.com'
-      eval("f.password_#{front} = '123654'")
-      f.checkbox_with(:name=>'remember').check
-      f.vk = vk
-    end.click_button
+      login_page = page.form_with(:action=>action) do |f|
+        f.mobile = @params['username']
+        eval("f.password_#{front} = #{@params['password']}")
+        f.checkbox_with(:name=>'remember').check
+        f.vk = vk
+      end.click_button
 
-    # save cookies
-    @web.cookie_jar.save('wb.yml')
+      # save cookies
+      @web.cookie_jar.save('wb.yml')
+    else
+      puts 'Settings config file not existed!!!'
+    end
   end
 
   # 使用cookie免登录

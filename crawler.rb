@@ -88,6 +88,6 @@ if __FILE__ == $0
   when 'test'
     u = WbUtil.new
     u.login
-    u.fetch_user_page('http://weibo.cn/yimaobuba')
+    #u.fetch_user_page('http://weibo.cn/yimaobuba')
   end
 end
