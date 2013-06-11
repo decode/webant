@@ -53,14 +53,20 @@ class WbUtil
 
   # 使用cookie免登录
   def load_cookie
-    # 优先使用浏览噐导出的cookies文件
-    if File.exist?('cookies.txt')
-      @web.cookie_jar = Mechanize::CookieJar.new.load('cookies.txt', :format => :cookiestxt)
-      return
-    end
-    if File.exist?('wb.yml')
-      @web.cookie_jar = Mechanize::CookieJar.new.load('wb.yml')
-      return
+    begin
+      # 优先使用浏览噐导出的cookies文件
+      if File.exist?('cookies.txt')
+        @web.cookie_jar = Mechanize::CookieJar.new.load('cookies.txt', :format => :cookiestxt)
+        @logger.info 'Load cookies.txt'
+        return
+      end
+      if File.exist?('wb.yml')
+        @web.cookie_jar = Mechanize::CookieJar.new.load('wb.yml')
+        @logger.info 'Load wb.yml'
+        return
+      end
+    rescue
+      @logger.error 'Loading cookies error!!!'
     end
   end
 
