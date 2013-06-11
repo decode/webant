@@ -12,8 +12,10 @@ class Wb
 
   # 只考虑系统首页的情况
   def login?
-    login = @doc.css('div.u > div.ut')
-    return false if login.length > 0
+    login = @doc.css('div.u > div.ut > a')
+    login.each do |l|
+      return false if l.content.match(/登录/)
+    end
     login = @doc.css('div.c')
     login.each do |l|
       return false if l.content.match(/登录/)

@@ -14,15 +14,18 @@ end
 class WbUtil
   attr_accessor :web
 
+  @logger = nil
+
   def initialize
     @web = Mechanize.new
     @web.user_agent_alias = 'Mac Safari' 
+    @logger = Logger.new(File.dirname(__FILE__) + '/../log/crawl.log', 10, 1024000)
   end
 
   def login
     page = @web.get('http://login.weibo.cn/login/')
-    file = File.new("login.html", "w")
-    file << page.body
+    #file = File.new("login.html", "w")
+    #file << page.body
     
     doc = Nokogiri::HTML::parse(page.body)
     vk = doc.css('input')[-2]['value']
@@ -42,7 +45,7 @@ class WbUtil
       end.click_button
 
       # save cookies
-      @web.cookie_jar.save('wb.yml')
+      @web.cookie_jar.save_as('wb.yml')
     else
       puts 'Settings config file not existed!!!'
     end
@@ -50,18 +53,29 @@ class WbUtil
 
   # 使用cookie免登录
   def load_cookie
-    if File.exist?('wb.yml') 
+    # 优先使用浏览噐导出的cookies文件
+    if File.exist?('cookies.txt')
+      @web.cookie_jar = Mechanize::CookieJar.new.load('cookies.txt', :format => :cookiestxt)
+      return
+    end
+    if File.exist?('wb.yml')
       @web.cookie_jar = Mechanize::CookieJar.new.load('wb.yml')
+      return
     end
   end
 
   # 检查是否登录, 自动加载cookies
   def check_login
+    # 如果使用这个函数,mechanize2.7.1会报錯,2.6.0没有这个问题
+    load_cookie
     page = @web.get('http://weibo.cn')
     wb = Wb.new(page.body)
-    login unless wb.login?
-    # 如果使用这个函数,mechanize2.7.1会报錯,2.6.0没有这个问题
-    #load_cookie
+    #file = File.new("index.html", "w")
+    #file << page.body
+    unless wb.login?
+      @logger.info 'Not loggin!! Re-login!!'
+      login 
+    end
   end
 
   # 获得用户的主页链接
