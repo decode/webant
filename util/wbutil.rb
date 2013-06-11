@@ -55,13 +55,15 @@ class WbUtil
   def load_cookie
     begin
       # 优先使用浏览噐导出的cookies文件
-      if File.exist?('cookies.txt')
-        @web.cookie_jar = Mechanize::CookieJar.new.load('cookies.txt', :format => :cookiestxt)
+      cookie_file = File.dirname(__FILE__) + '/../cookies.txt'
+      if File.exist? cookie_file
+        @web.cookie_jar = Mechanize::CookieJar.new.load(cookie_file, :format => :cookiestxt)
         @logger.info 'Load cookies.txt'
         return
       end
-      if File.exist?('wb.yml')
-        @web.cookie_jar = Mechanize::CookieJar.new.load('wb.yml')
+      cookieyml_file = File.dirname(__FILE__) + '/../wb.yml'
+      if File.exist? cookieyml_file
+        @web.cookie_jar = Mechanize::CookieJar.new.load(cookieyml_file)
         @logger.info 'Load wb.yml'
         return
       end
