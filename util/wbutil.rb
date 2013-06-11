@@ -19,7 +19,7 @@ class WbUtil
   def initialize
     @web = Mechanize.new
     @web.user_agent_alias = 'Mac Safari' 
-    @logger = Logger.new(File.dirname(__FILE__) + '/../log/crawl.log', 10, 1024000)
+    @logger = Logger.new(File.dirname(__FILE__) + '/../log/auth.log', 10, 1024000)
   end
 
   def login
